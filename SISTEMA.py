@@ -117,16 +117,17 @@ def cadastroCliente():
     Faz o cadastro dos clientes, adicionando os dados ao dicionário clientes e à lista banco
     de dados.
     """
-    while True:
-        def retorno(comando):
+
+    def retorno(comando):
             """Reinicia o cadastro de clientes, ou retorna para o menu de clientes
             :param comando: Recebe o nome da variável sendo usada no momento em que a função é chamada"""
             if str(comando) in ('VOLTAR', 'VOLTA'):
                 menuCliente()
             if str(comando) in ('RESET'):
                 cadastroCliente()
-        
-        
+
+
+    while True:        
         system('cls')
         print('''   
 
@@ -154,6 +155,30 @@ def cadastroCliente():
             print('\033[31mPor favor, insira um número de telefone válido.\033[m')
             clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
 
+        '''*** VERIFICA SE O NÚMERO DE TELEFONE TEM MENOS/MAIS DE NOVE NÚMEROS, QUE É O PADRÃO DE NÚMEROS
+         DE CELULAR NO RIO DE JANEIRO ***'''
+
+        while len(clientes['tel']) < 9 or len(clientes['tel']) > 9:
+            if len(clientes['tel']) < 9:
+                faltaNumero = str(input(f'Parece estar faltando alguns números no telefone {clientes["tel"]}. Deseja continuar assim mesmo?[S/N] ')).strip().upper()
+                if faltaNumero == '':
+                    faltaNumero = 'SIM'
+                retorno(faltaNumero)
+            elif len(clientes['tel']) > 9:
+                faltaNumero = str(input(f'O telefone {clientes["tel"]} parece estar com números a mais. Deseja continuar assim mesmo?[S/N] ')).strip().upper()
+                if faltaNumero == '':
+                    faltaNumero = 'SIM'
+                retorno(faltaNumero)
+            if faltaNumero in ('N', 'NAO', 'NÃO'):
+                clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
+                while clientes['tel'] == '' or clientes['tel'].isnumeric() == False:
+                    if clientes['tel'] in ('VOLTAR', 'VOLTA', 'RESET'):
+                        retorno(clientes['tel'])
+                    print('\033[31mPor favor, insira um número de telefone válido.\033[m')
+                    clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
+            else:
+                break    
+
         '''****VERIFICA SE O TELEFONE CADASTRADO JÁ EXISTE NO BANCO DE DADOS E PEDE 
         UM NÚMERO AINDA NÃO CADASTRADO OU MANDA PARA A ALTERAÇÃO DE CADASTROS****'''
 
@@ -167,8 +192,9 @@ def cadastroCliente():
                         retorno(clientes['tel'])
                     if clientes['tel'] in ('ALTERAR', 'ALTERA'):
                         alteraCliente()
-                    print('\033[31mPor favor, insira um nome válido.\033[m')
+                    print('\033[31mPor favor, insira um número válido.\033[m')
                     clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
+        
         clientes['end'] = str(input('Endereço: ')).strip().upper()
         if clientes['end'] == '':
             clientes['end'] = 'Endereço não cadastrado'
@@ -179,43 +205,47 @@ def cadastroCliente():
         else:
             retorno(clientes['ref'])
 
+        '''*** ADICIONA AS NOVAS INFORMAÇÕES AO BANCO DE DADOS ***'''
         dadosClientes.append(clientes.copy())
         print()
         print('Cadastrando cliente...')
         sleep(1.5)
         print()
-        escolha = str(input('Cadastro realizado com sucesso! Deseja cadastrar mais um cliente? [S/N] ')).strip()
-        while escolha not in ('s', 'S', 'n', 'N', 'sim', 'Sim', 'SIM', 'nao', 'Nao', 'NAO', 'não', 'Não', 'NÃO') or escolha == '':
+        escolha = str(input('Cadastro realizado com sucesso! Deseja cadastrar mais um cliente? [S/N] ')).strip().upper()
+        while escolha not in ('S', 'N', 'SIM', 'NAO', 'NÃO') or escolha == '':
             print('\nOpção inválida!')
-            escolha = str(input('Deseja cadastrar mais um cliente? [S/N] ')).strip()
-        if escolha in ('nao', 'Nao', 'NAO', 'não', 'Não', 'NÃO', 'n', 'N'):
+            escolha = str(input('Deseja cadastrar mais um cliente? [S/N] ')).strip().upper()
+        if escolha in ('NAO', 'NÃO', 'N'):
             break
     
     enviarDados('CADASTRO_CLIENTES')
     
-
+    menuPrincipal()
 
 def alteraCliente():
     """
     Faz alterações no cadastro dos clientes.
     """
+    
     while True:
         system('cls')
         print('''
 
-    ░█▀▀█ █░░ ▀▀█▀▀ █▀▀ █▀▀█ █▀▀█ █▀▀█ 　 ▒█▀▀█ █░░ ░▀░ █▀▀ █▀▀▄ ▀▀█▀▀ █▀▀ 
-    ▒█▄▄█ █░░ ░░█░░ █▀▀ █▄▄▀ █▄▄█ █▄▄▀ 　 ▒█░░░ █░░ ▀█▀ █▀▀ █░░█ ░░█░░ █▀▀ 
-    ▒█░▒█ ▀▀▀ ░░▀░░ ▀▀▀ ▀░▀▀ ▀░░▀ ▀░▀▀ 　 ▒█▄▄█ ▀▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀
+░█▀▀█ █░░ ▀▀█▀▀ █▀▀ █▀▀█ █▀▀█ █▀▀█ 　 ▒█▀▀█ █░░ ░▀░ █▀▀ █▀▀▄ ▀▀█▀▀ █▀▀ 
+▒█▄▄█ █░░ ░░█░░ █▀▀ █▄▄▀ █▄▄█ █▄▄▀ 　 ▒█░░░ █░░ ▀█▀ █▀▀ █░░█ ░░█░░ █▀▀ 
+▒█░▒█ ▀▀▀ ░░▀░░ ▀▀▀ ▀░▀▀ ▀░░▀ ▀░▀▀ 　 ▒█▄▄█ ▀▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀
+        
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
         ''')
-        print('\n\n*** DIGITE 999 PARA CANCELAR ***\n')
 
         '''***FAZ A BUSCA DO CADASTRO DO CLIENTE ATRAVÉS DO NÚMERO DE TELEFONE***'''
-
-        busca = str(input('Digite o número de telefone do cliente: ')).strip()
+        busca = str(input('Digite o número de telefone do cliente: ')).strip().upper()
         while busca.isnumeric() == False or busca == '':
-            print('Digite um numero de telefone válido.')
+            if busca in ('VOLTAR', 'VOLTA'):
+                menuCliente()
+            print('\033[31mDigite um numero de telefone válido.\033[m')
             busca = str(input('Digite o número de telefone do cliente: ')).strip()
-        voltar(busca, menuCliente)
         cont = 0
         for item in dadosClientes:
             if item['tel'] == busca:
@@ -229,49 +259,69 @@ def alteraCliente():
                 print('=' * 50)
                 sleep(1)
                 
-                '''***FAZ ALTERAÇÕES NO CADASTRO DO CLENTE***'''
-                
+                '''***FAZ ALTERAÇÕES NO CADASTRO DO CLIENTE***'''
                 while True:
-                    alterar = str(input('\nDeseja alterar qual campo? [NOME/TELEFONE/ENDEREÇO/REFERENCIA/999 para sair] ')).strip().lower()[:3]
-                    while alterar not in ('nom', 'tel', 'end', 'ref', '999') or alterar == '':
-                        print('Opção inválida.')
-                        alterar = str(input('\nDeseja alterar qual campo? [NOME/TELEFONE/ENDEREÇO/REFERENCIA/999 para sair] ')).strip().lower()[:3]
-                    voltar(alterar, menuCliente)
+                    alterar = str(input('\nDeseja alterar qual campo? [NOME/TELEFONE/ENDEREÇO/REFERENCIA]: ')).strip().lower()[:3]
+                    while alterar not in ('nom', 'tel', 'end', 'ref', 'vol', 'res') or alterar == '':
+                        print('\033[31mOpção inválida.\033[m')
+                        alterar = str(input('Deseja alterar qual campo? [NOME/TELEFONE/ENDEREÇO/REFERENCIA]: ')).strip().lower()[:3]
+                    if alterar in ('res'):
+                        alteraCliente()
+                    elif alterar in ('vol'):
+                        menuCliente()
                     clientes[alterar] = str(input('Insira o novo valor: ')).upper().strip()
+                    if clientes[alterar] in ('RESET'):
+                        alteraCliente()
+                    elif clientes[alterar] in ('VOLTAR', 'VOLTA'):
+                        menuCliente()
                     while alterar == 'nom' and clientes[alterar].isnumeric():
-                        print('Por favor, digite um nome válido.')
+                        print('\033[31mPor favor, digite um nome válido.\033[m')
                         clientes[alterar] = str(input('Insira o novo valor: ')).upper().strip()
                     while alterar == 'tel' and clientes[alterar].isnumeric() == False:
+                        if clientes[alterar] in ('RESET'):
+                            alteraCliente()
+                        elif clientes[alterar] in ('VOLTAR', 'VOLTA'):
+                            menuCliente()
                         print('Por favor, digite um número de telefone válido.')
                         clientes[alterar] = str(input('Insira o novo valor: '))
-            if clientes != dadosClientes[cont]:
-                print()
-                print('=' * 50)
-                print('DADOS DO CLIENTE')
-                print('=' * 50)
-                for k, v in clientes.items():
-                    print(f'{k}: {v}') 
-                print('=' * 50)
-                sleep(1)
-                salvar = str(input('Deseja salvar essas alterações? [S/N] ')).strip()[0]
-                while salvar not in 'SsNn':
-                    print('Opção inválida.')
-                    escolha = str(input('Deseja salvar essas alterações? [S/N] ')).strip()[0]
-                if salvar in 'sS':
-                    del dadosClientes[cont]
-                    dadosClientes.insert(cont, clientes.copy())
-                bancoDados = open('CADASTRO_CLIENTES.csv', 'w', newline = '', encoding = 'utf8')
-                criarBanco = csv.writer(bancoDados)
-                for i in range(len(dadosClientes)):
-                    criarBanco.writerow([dadosClientes[i]['nom'], dadosClientes[i]['tel'], dadosClientes[i]['end'], dadosClientes[i]['ref']])
-                bancoDados.close()
-            escolha = str(input('Deseja alterar mais algum cadastro? [S/N] ')).strip()[0]
-            while escolha not in 'SsNn':
-                print('Opção inválida.')
-                escolha = str(input('Deseja alterar mais algum cadastro? [S/N] ')).strip()[0]
-            if escolha in 'Ss':
-                alteraCliente()
-                break        
+                    continuar = str(input('Deseja fazer mais alguma alteração? ')).strip().upper()
+                    while continuar not in ('S', 'N', 'SIM', 'NAO', 'NÃO', 'RESET', 'VOLTAR', 'VOLTA'):
+                        print('\033[31mOpção inválida.\033[m')
+                        continuar = str(input('Deseja fazer mais alguma alteração? ')).strip().upper()
+                    if continuar in ('RESET'):
+                        alteraCliente()
+                    elif continuar in ('VOLTAR', 'VOLTA'):
+                        menuCliente()
+                    elif continuar in ('N', 'NÃO', 'NAO'):
+                        break
+                if clientes != dadosClientes[cont]:
+                        print()
+                        print('=' * 50)
+                        print('DADOS DO CLIENTE')
+                        print('=' * 50)
+                        for k, v in clientes.items():
+                            print(f'{k}: {v}') 
+                        print('=' * 50)
+                        sleep(1)
+                        salvar = str(input('Deseja salvar essas alterações? [S/N] ')).strip()[0]
+                        while salvar not in 'SsNn':
+                            print('\033[31mOpção inválida.\033[m')
+                            salvar = str(input('Deseja salvar essas alterações? [S/N] ')).strip()[0]
+                        if salvar in 'sS':
+                            print('Alterando cadastro...')
+                            sleep(1)
+                            del dadosClientes[cont]
+                            dadosClientes.insert(cont, clientes.copy())
+                            print('Cadastro alterado com sucesso!')
+                        enviarDados('CADASTRO_CLIENTES')
+                        escolha = str(input('Deseja alterar mais algum cadastro? [S/N] ')).strip()[0]
+                        while escolha not in 'SsNn':
+                            print('\033[31mOpção inválida.\033[m')
+                            escolha = str(input('Deseja alterar mais algum cadastro? [S/N] ')).strip()[0]
+                        if escolha in 'Ss':
+                            alteraCliente()  
+                        else:
+                            break      
             else:
                 cont += 1
                 if cont >= len(dadosClientes):

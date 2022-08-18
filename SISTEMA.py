@@ -10,15 +10,49 @@ produto = {}
 tabelaProduto = []
 
 
+def retorno(origem, comando):
+            """Reinicia a função, ou retorna para o menu anterior
+            :param comando: Recebe o nome da variável sendo usada no momento em que a função é chamada"""
+            if str(comando) in ('VOLTAR', 'VOLTA'):
+                if origem == 'cadcli':
+                    menuCliente()
+                elif origem == 'altcli':
+                    menuCliente()
+                elif origem == 'cadpro':
+                    menuProduto()
+                elif origem == 'altpro':
+                    menuProduto()
+                elif origem == 'pdv':
+                    menuPrincipal()
+                
+            if str(comando) in ('RESET'):
+                if origem == 'cadcli':
+                    cadastroCliente()
+                elif origem == 'altcli':
+                    alteraCliente()
+                elif origem == 'cadpro':
+                    cadastroProduto()
+                elif origem == 'altpro':
+                    alteraProduto()
+                elif origem == 'pdv':
+                    pdv()
+
+
 def enviarDados(bdados):
     """
-    Envia as informações dos clientes para o banco de dados
+    Envia as informações para os bancos de dados
     """
     if bdados == 'CADASTRO_CLIENTES':
         bancoDados = open(f'{bdados}.csv', 'w', newline = '', encoding = 'utf8')
         criarBanco = csv.writer(bancoDados)
         for i in range(len(dadosClientes)):
             criarBanco.writerow([dadosClientes[i]['nom'], dadosClientes[i]['tel'], dadosClientes[i]['end'], dadosClientes[i]['ref']])
+        bancoDados.close()
+    if bdados == 'CADASTRO_PRODUTOS':
+        bancoDados = open('CADASTRO_PRODUTOS.csv', 'w', newline = '', encoding = 'utf8')
+        criarBanco = csv.writer(bancoDados)
+        for i in range(len(tabelaProduto)):
+            criarBanco.writerow([tabelaProduto[i]['nom'], tabelaProduto[i]['pre']])
         bancoDados.close()
 
 
@@ -73,7 +107,7 @@ def menuPrincipal():
             elif escolha == 2:
                 menuProduto()
             elif escolha == 3:
-                PDV()
+                pdv()
             elif escolha == 4:
                 exit()
             
@@ -117,16 +151,6 @@ def cadastroCliente():
     Faz o cadastro dos clientes, adicionando os dados ao dicionário clientes e à lista banco
     de dados.
     """
-
-    def retorno(comando):
-            """Reinicia o cadastro de clientes, ou retorna para o menu de clientes
-            :param comando: Recebe o nome da variável sendo usada no momento em que a função é chamada"""
-            if str(comando) in ('VOLTAR', 'VOLTA'):
-                menuCliente()
-            if str(comando) in ('RESET'):
-                cadastroCliente()
-
-
     while True:        
         system('cls')
         print('''   
@@ -147,11 +171,11 @@ def cadastroCliente():
         while clientes['nom'] == '':
             print('\033[31mPor favor, insira um nome válido.\033[m')
             clientes['nom'] = str(input('Nome: ')).upper().strip()
-        retorno(clientes['nom'])
+        retorno('cadcli', clientes['nom'])
         clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
         while clientes['tel'] == '' or clientes['tel'].isnumeric() == False:
             if clientes['tel'] in ('VOLTAR', 'VOLTA', 'RESET'):
-                retorno(clientes['tel'])
+                retorno('cadcli', clientes['tel'])
             print('\033[31mPor favor, insira um número de telefone válido.\033[m')
             clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
 
@@ -163,17 +187,17 @@ def cadastroCliente():
                 faltaNumero = str(input(f'Parece estar faltando alguns números no telefone {clientes["tel"]}. Deseja continuar assim mesmo?[S/N] ')).strip().upper()
                 if faltaNumero == '':
                     faltaNumero = 'SIM'
-                retorno(faltaNumero)
+                retorno('cadcli', faltaNumero)
             elif len(clientes['tel']) > 9:
                 faltaNumero = str(input(f'O telefone {clientes["tel"]} parece estar com números a mais. Deseja continuar assim mesmo?[S/N] ')).strip().upper()
                 if faltaNumero == '':
                     faltaNumero = 'SIM'
-                retorno(faltaNumero)
+                retorno('cadcli', faltaNumero)
             if faltaNumero in ('N', 'NAO', 'NÃO'):
                 clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
                 while clientes['tel'] == '' or clientes['tel'].isnumeric() == False:
                     if clientes['tel'] in ('VOLTAR', 'VOLTA', 'RESET'):
-                        retorno(clientes['tel'])
+                        retorno('cadcli', clientes['tel'])
                     print('\033[31mPor favor, insira um número de telefone válido.\033[m')
                     clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
             else:
@@ -189,7 +213,7 @@ def cadastroCliente():
                 clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
                 while clientes['tel'] == '' or clientes['tel'].isnumeric() == False:
                     if clientes['tel'] in ('VOLTAR', 'VOLTA', 'RESET'):
-                        retorno(clientes['tel'])
+                        retorno('cadcli', clientes['tel'])
                     if clientes['tel'] in ('ALTERAR', 'ALTERA'):
                         alteraCliente()
                     print('\033[31mPor favor, insira um número válido.\033[m')
@@ -198,12 +222,12 @@ def cadastroCliente():
         clientes['end'] = str(input('Endereço: ')).strip().upper()
         if clientes['end'] == '':
             clientes['end'] = 'Endereço não cadastrado'
-        retorno(clientes['end'])
+        retorno('cadcli', clientes['end'])
         clientes['ref'] = str(input('Ponto de referência: ')).upper().strip()
         if clientes['ref'] == '':
             clientes['ref'] = 'Ponto de referência não cadastrado'
         else:
-            retorno(clientes['ref'])
+            retorno('cadcli', clientes['ref'])
 
         '''*** ADICIONA AS NOVAS INFORMAÇÕES AO BANCO DE DADOS ***'''
         dadosClientes.append(clientes.copy())
@@ -242,8 +266,8 @@ def alteraCliente():
         '''***FAZ A BUSCA DO CADASTRO DO CLIENTE ATRAVÉS DO NÚMERO DE TELEFONE***'''
         busca = str(input('Digite o número de telefone do cliente: ')).strip().upper()
         while busca.isnumeric() == False or busca == '':
-            if busca in ('VOLTAR', 'VOLTA'):
-                menuCliente()
+            if busca in ('VOLTAR', 'VOLTA', 'RESET'):
+                retorno('altcli', busca)
             print('\033[31mDigite um numero de telefone válido.\033[m')
             busca = str(input('Digite o número de telefone do cliente: ')).strip()
         cont = 0
@@ -270,28 +294,22 @@ def alteraCliente():
                     elif alterar in ('vol'):
                         menuCliente()
                     clientes[alterar] = str(input('Insira o novo valor: ')).upper().strip()
-                    if clientes[alterar] in ('RESET'):
-                        alteraCliente()
-                    elif clientes[alterar] in ('VOLTAR', 'VOLTA'):
-                        menuCliente()
+                    if clientes[alterar] in ('RESET', 'VOLTAR', 'VOLTA'):
+                        retorno('altcli', clientes[alterar])
                     while alterar == 'nom' and clientes[alterar].isnumeric():
                         print('\033[31mPor favor, digite um nome válido.\033[m')
                         clientes[alterar] = str(input('Insira o novo valor: ')).upper().strip()
                     while alterar == 'tel' and clientes[alterar].isnumeric() == False:
-                        if clientes[alterar] in ('RESET'):
-                            alteraCliente()
-                        elif clientes[alterar] in ('VOLTAR', 'VOLTA'):
-                            menuCliente()
+                        if clientes[alterar] in ('RESET', 'VOLTAR', 'VOLTA'):
+                            retorno('altcli', clientes[alterar])
                         print('Por favor, digite um número de telefone válido.')
                         clientes[alterar] = str(input('Insira o novo valor: '))
                     continuar = str(input('Deseja fazer mais alguma alteração? ')).strip().upper()
                     while continuar not in ('S', 'N', 'SIM', 'NAO', 'NÃO', 'RESET', 'VOLTAR', 'VOLTA'):
                         print('\033[31mOpção inválida.\033[m')
                         continuar = str(input('Deseja fazer mais alguma alteração? ')).strip().upper()
-                    if continuar in ('RESET'):
-                        alteraCliente()
-                    elif continuar in ('VOLTAR', 'VOLTA'):
-                        menuCliente()
+                    if continuar in ('RESET', 'VOLTAR', 'VOLTA'):
+                        retorno('altcli', continuar)
                     elif continuar in ('N', 'NÃO', 'NAO'):
                         break
                 if clientes != dadosClientes[cont]:
@@ -326,11 +344,11 @@ def alteraCliente():
                 cont += 1
                 if cont >= len(dadosClientes):
                     print()
-                    print('Número não encontrado.')
+                    print('\033[31mNúmero não encontrado.\033[m')
                     sleep(1)
                     escolha = str(input('Deseja fazer uma nova busca? [S/N] ')).strip()[0]
                     while escolha not in 'SsNn':
-                        print('Opção inválida.')
+                        print('\033[31mOpção inválida.\033[m')
                         escolha = str(input('Deseja fazer uma nova busca? [S/N] ')).strip()[0]
                     if escolha in 'Ss':
                         alteraCliente()
@@ -349,8 +367,8 @@ def menuProduto():
     menuOpcoes('CADASTRO DE PRODUTOS', 'ALTERAÇÃO DE CADASTRO', 'LISTA DE PRODUTOS', 'VOLTAR')
     escolha = str(input('Selecione a opção [1/4]: '))
     while escolha not in ('1', '2', '3', '4') or escolha == '':
-        print('Opção inválida!')
-        escolha = str(input('Selecione a opção [1/3]: '))
+        print('\033[31mOpção inválida!\033[m')
+        escolha = str(input('Selecione a opção [1/4]: '))
     if escolha == '1':
         cadastroProduto()
     if escolha == '2':
@@ -369,49 +387,76 @@ def cadastroProduto():
 ▒█▀▀█ █▀▀█ █▀▀▄ █▀▀█ █▀▀ ▀▀█▀▀ █▀▀█ █▀▀█ 　 ▒█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █░░█ ▀▀█▀▀ █▀▀█ █▀▀ 
 ▒█░░░ █▄▄█ █░░█ █▄▄█ ▀▀█ ░░█░░ █▄▄▀ █░░█ 　 ▒█▄▄█ █▄▄▀ █░░█ █░░█ █░░█ ░░█░░ █░░█ ▀▀█ 
 ▒█▄▄█ ▀░░▀ ▀▀▀░ ▀░░▀ ▀▀▀ ░░▀░░ ▀░▀▀ ▀▀▀▀ 　 ▒█░░░ ▀░▀▀ ▀▀▀▀ ▀▀▀░ ░▀▀▀ ░░▀░░ ▀▀▀▀ ▀▀▀
-    ''')
+
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***''')
         print()
         produto['nom'] = str(input('Nome do produto: ')).strip().upper()
         while produto['nom'] == '':
-            print('\nOpção inválida!')
+            print('\033[31mOpção inválida!\033[m')
             produto['nom'] = str(input('Por favor, digite o nome do produto: ')).strip().upper()
+        if produto['nom'] in ('RESET', 'VOLTAR', 'VOLTA'):
+            retorno('cadpro', produto['nom'])
         produto['pre'] = str(input('Preço: R$ ')).strip()
-        while produto['pre'] == '' or produto['pre'].find(',') != -1 or produto['pre'].count('.') > 1:
+        while produto['pre'] == '' or produto['pre'].find(',') != -1 or produto['pre'].count('.') > 1 or produto['pre'].isalpha() == True:
+            if produto['nom'] in ('RESET', 'VOLTAR', 'VOLTA'):
+                retorno('cadpro', produto['nom'])
             if produto['pre'].find(',') != -1:
                 produto['pre'] = produto['pre'].replace(',', '.')
             else:
-                print('\nOpção inválida!')
+                print('\033[31mOpção inválida!\033[m')
                 produto['pre'] = str(input('Por favor, digite o preço: R$ ')).strip()
-        tabelaProduto.append(produto.copy())
+        verificaProduto = (f'| {produto["nom"]}    R$ {produto["pre"]} |')
+        print('\nO produto cadastrado foi:\n')
+        print('-' * len(verificaProduto))
+        print(verificaProduto)
+        print('-' * len(verificaProduto))
+        confirma = str(input('Deseja confirmar? [S/N]: ')).strip().upper()
+        while confirma not in ('S', 'SIM', 'N', 'NAO', 'NÃO'):
+            if confirma in ('RESET', 'VOLTAR', 'VOLTA'):
+                retorno('cadpro', confirma)
+            print('\033[31mOpção inválida!\033[m')
+            confirma = str(input('Deseja confirmar? [S/N]: ')).strip().upper()
+        if confirma in ('N', 'NAO', 'NÃO'):
+            cadastroProduto()
         print()
         print('Cadastrando...')
         sleep(1.5)
+        tabelaProduto.append(produto.copy())
+        enviarDados('CADASTRO_PRODUTOS')
         print()
         escolha = str(input(f'O produto {produto["nom"]} foi cadastrado no código {len(tabelaProduto)}! Deseja cadastrar mais um produto? [S/N] ')).strip()[0]
         while escolha not in 'sSnN':
-            print('\nOpção inválida')
+            print('\033[31mOpção inválida!\033[m')
             escolha = str(input('Deseja cadastrar mais um produto? [S/N] ')).strip()[0]
         if escolha in 'Nn':
             break
-    bancoDados = open('CADASTRO_PRODUTOS.csv', 'w', newline = '', encoding = 'utf8')
-    criarBanco = csv.writer(bancoDados)
-    for i in range(len(tabelaProduto)):
-        criarBanco.writerow([tabelaProduto[i]['nom'], tabelaProduto[i]['pre']])
-    bancoDados.close()
     menuPrincipal()
     
 
 def alteraProduto():
+
+    
     while True:
         system('cls')
         print('''
         
-    ░█▀▀█ █░░ ▀▀█▀▀ █▀▀ █▀▀█ █▀▀█ █▀▀█ 　 ▒█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █░░█ ▀▀█▀▀ █▀▀█ 
-    ▒█▄▄█ █░░ ░░█░░ █▀▀ █▄▄▀ █▄▄█ █▄▄▀ 　 ▒█▄▄█ █▄▄▀ █░░█ █░░█ █░░█ ░░█░░ █░░█ 
-    ▒█░▒█ ▀▀▀ ░░▀░░ ▀▀▀ ▀░▀▀ ▀░░▀ ▀░▀▀ 　 ▒█░░░ ▀░▀▀ ▀▀▀▀ ▀▀▀░ ░▀▀▀ ░░▀░░ ▀▀▀▀
-        ''')
-        print()
-        busca = int(input('Código do produto: '))
+░█▀▀█ █░░ ▀▀█▀▀ █▀▀ █▀▀█ █▀▀█ █▀▀█ 　 ▒█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █░░█ ▀▀█▀▀ █▀▀█ 
+▒█▄▄█ █░░ ░░█░░ █▀▀ █▄▄▀ █▄▄█ █▄▄▀ 　 ▒█▄▄█ █▄▄▀ █░░█ █░░█ █░░█ ░░█░░ █░░█ 
+▒█░▒█ ▀▀▀ ░░▀░░ ▀▀▀ ▀░▀▀ ▀░░▀ ▀░▀▀ 　 ▒█░░░ ▀░▀▀ ▀▀▀▀ ▀▀▀░ ░▀▀▀ ░░▀░░ ▀▀▀▀
+             
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
+''')
+        busca = str(input('Código do produto: ')).upper()
+        while busca == '' or busca.isnumeric() == False:    
+            if busca in ('VOLTAR', 'VOLTA', 'RESET'):
+                retorno('altpro', busca)
+            print('\033[31mOpção inválida!\033[m')
+            busca = str(input('Código do produto: ')).upper()
+        print('Buscando...')
+        busca = int(busca)
+        sleep(1)
         print()
         print('=' * 50)
         print(f'Nome: {tabelaProduto[busca - 1]["nom"]}\nPreço: R$ {float(tabelaProduto[busca - 1]["pre"]):.2f}')
@@ -420,38 +465,56 @@ def alteraProduto():
         produto['pre'] = tabelaProduto[busca - 1]['pre']
         sleep(1)
         while True:
-            alterar = str(input('\nDeseja alterar qual campo? [NOME/PREÇO/SAIR para sair] ')).strip()[:3]
+            alterar = str(input('\nDeseja alterar qual campo? [NOME/PREÇO] ')).strip().lower()[:3]
             print()
-            if alterar == 'sai':
-                break
+            if alterar == 'vol':
+                alterar = 'VOLTA'
+                retorno('altpro', alterar)
+            elif alterar == 'res':
+                alterar = 'RESET'
+                retorno('altpro', alterar)               
             elif alterar == 'pre':
-                produto[alterar] = str(input('Digite o novo preço: R$ ')).strip()
-                while produto[alterar] == '' or produto[alterar].find(',') != -1 or produto[alterar].count('.') > 1:
-                    print('\nOpção inválida!')
+                produto[alterar] = str(input('Digite o novo preço: R$ ')).strip().upper()
+                while produto[alterar] == '' or produto[alterar].find(',') != -1 or produto[alterar].count('.') > 1 or produto[alterar].isalpha() == True:
+                    if produto[alterar] in ('VOLTAR', 'VOLTA', 'RESET'):
+                        retorno('altpro', produto[alterar])
                     if produto[alterar].find(',') != -1:
-                        print('Por favor, não use vírgula para separar os centavos.\n')
-                    produto[alterar] = str(input('Por favor, digite o preço: R$ ')).strip()
+                        produto['pre'] = produto['pre'].replace(',', '.')
+                    else:
+                        print('\033[31mOpção inválida!\033[m')
+                        produto[alterar] = str(input('Por favor, digite o preço: R$ ')).strip()
             elif alterar == 'nom':
                 produto[alterar] = str(input('Digite o novo nome do produto: ')).strip().upper()
+                while produto[alterar].isnumeric() == True:
+                    print('\033[31mOpção inválida!\033[m')
+                    produto[alterar] = str(input('Por favor, digite um nome válido: R$ ')).strip()
+                if produto[alterar] in ('VOLTAR', 'VOLTA', 'RESET'):
+                    retorno('altpro', produto[alterar])
+            encerrar = str(input('Deseja fazer mais alguma alteração? [S/N]: ')).strip().upper()
+            while encerrar not in 'SN':
+                if encerrar in ('VOLTAR', 'VOLTA', 'RESET'):
+                    retorno('altpro', encerrar)
+                print('\033[31mOpção inválida!\033[m')
+                encerrar = str(input('Deseja fazer mais alguma alteração? [S/N]: ')).strip().upper()
+                if encerrar in 'N':
+                    break
         print('=' * 50)
         print(f'Nome: {produto["nom"]}\nPreço: R$ {float(produto["pre"]):.2f}')
         print('=' * 50)
-        salvar = str(input('\nDeseja salvar essas alterações? [S/N] ')).strip()[0]
-        while salvar not in 'SsNn':
-            print('Opção inválida.')
-            escolha = str(input('Deseja salvar essas alterações? [S/N] ')).strip()[0]
+        salvar = str(input('\nDeseja salvar essas alterações? [S/N] ')).strip().upper()[0]
+        while salvar not in 'SN':
+            if salvar in ('VOLTAR', 'VOLTA', 'RESET'):
+                retorno('altpro', salvar)
+            print('\033[31mOpção inválida!\033[m')
+            escolha = str(input('Deseja salvar essas alterações? [S/N] ')).strip().upper()[0]
         if salvar in 'sS':
             del tabelaProduto[busca - 1]
             tabelaProduto.insert(busca - 1, produto.copy())
-            bancoDados = open('CADASTRO_PRODUTOS.csv', 'w', newline = '', encoding = 'utf8')
-            criarBanco = csv.writer(bancoDados)
-            for i in range(len(tabelaProduto)):
-                criarBanco.writerow([tabelaProduto[i]['nom'], tabelaProduto[i]['pre']])
-            bancoDados.close()
-        escolha = str(input('Deseja alterar mais algum produto? ')).strip()[0]
-        while escolha not in 'SsNn':
-            print('\nOpção inválida')
-            escolha = str(input('Deseja alterar mais algum produto? ')).strip()[0]
+            enviarDados('CADASTRO_PRODUTOS')
+        escolha = str(input('Deseja alterar mais algum produto? ')).strip().upper()[0]
+        while escolha not in 'SN':
+            print('\033[31mOpção inválida!\033[m')
+            escolha = str(input('Deseja alterar mais algum produto? ')).strip().upper()[0]
         if escolha in 'Nn':
             menuPrincipal()
 
@@ -467,10 +530,10 @@ def mostrarProduto():
     sair = str(input('Aperte ENTER para sair ')).strip()
     if sair == '':
         menuPrincipal()
-    menuPrincipal()
+    
 
 
-def PDV():
+def pdv():
     pedidos = []
     quantidadeLista = []
     taxaEntrega = contador = total = 0
@@ -481,10 +544,23 @@ def PDV():
     print('''     
 ▒█▀▀█ █▀▀ █▀▀▄ ░▀░ █▀▀▄ █▀▀█ █▀▀ 
 ▒█▄▄█ █▀▀ █░░█ ▀█▀ █░░█ █░░█ ▀▀█ 
-▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀''')   
+▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀
+             
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O PEDIDO ***
+*** DIGITE \033[31mFECHAR\033[m PARA FECHAR O PEDIDO ***
+''')   
     while True:
         print()
-        codigo = int(input('Código [999 para encerrar]: '))
+        try:
+            codigo = str(input('Código: ')).upper().strip()
+            if codigo in ('RESET', 'VOLTAR', 'VOLTA'):
+                retorno('pdv', codigo)
+            else:
+                codigo = int(codigo)
+        except:
+            print('\033[31mCódigo inválido. Digite um código válido.\033[m')
+            continue
         while codigo > len(tabelaProduto) or codigo <= 0:
             if codigo == 999:
                 break
@@ -539,7 +615,11 @@ def PDV():
             
 ▒█▀▀█ █▀▀ █▀▀▄ ░▀░ █▀▀▄ █▀▀█ █▀▀ 
 ▒█▄▄█ █▀▀ █░░█ ▀█▀ █░░█ █░░█ ▀▀█ 
-▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀''')   
+▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀
+             
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
+''')   
         print()
         print()
         print('=' * 75)
@@ -557,7 +637,11 @@ def PDV():
             
 ▒█▀▀█ █▀▀ █▀▀▄ ░▀░ █▀▀▄ █▀▀█ █▀▀ 
 ▒█▄▄█ █▀▀ █░░█ ▀█▀ █░░█ █░░█ ▀▀█ 
-▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀''')   
+▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀
+             
+*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
+''')   
     print()
     print()
     print('=' * 75)

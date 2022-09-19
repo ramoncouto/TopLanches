@@ -12,7 +12,10 @@ tabelaProduto = []
 
 def retorno(origem, comando):
             """Reinicia a função, ou retorna para o menu anterior
-            :param comando: Recebe o nome da variável sendo usada no momento em que a função é chamada"""
+            :param origem: Recebe a função que originou o chamado. É usado para saber qual a função deve ser chamada ao usar o comando voltar.
+            :param comando: Recebe o nome da variável sendo usada no momento em que a função é chamada
+            :return: Nenhum
+            """
             if str(comando) in ('VOLTAR', 'VOLTA'):
                 if origem == 'cadcli':
                     menuCliente()
@@ -41,6 +44,8 @@ def retorno(origem, comando):
 def enviarDados(bdados):
     """
     Envia as informações para os bancos de dados
+    :param bdados: recebe o nome do banco de dados para onde as informações devem ser enviadas.
+    :return: Nenhum
     """
     if bdados == 'CADASTRO_CLIENTES':
         bancoDados = open(f'{bdados}.csv', 'w', newline = '', encoding = 'utf8')
@@ -58,7 +63,7 @@ def enviarDados(bdados):
 
 def menuOpcoes(* opcoes):
     """
-    Escreve as opções do menu na tela.
+    Escreve as opções dos menus na tela.
     :param opcoes: São as opções que aparecem numeradas na tela.
     :return: Nenhum
     """
@@ -91,7 +96,7 @@ def menuPrincipal():
 ░░░╚═╝░░░░╚════╝░╚═╝░░░░░  ╚══════╝╚═╝░░╚═╝╚═╝░░╚══╝░╚════╝░╚═╝░░╚═╝╚══════╝╚═════╝░
      
     ''')
-    menuOpcoes('CLIENTES', 'PRODUTOS', 'FAZER PEDIDO', 'ENCERRAR PROGRAMA')
+    menuOpcoes('CLIENTES', 'PRODUTOS', 'FAZER PEDIDO')
     while True:
         try:
             escolha = int(input('Selecione a opção [1-4]: '))
@@ -108,8 +113,6 @@ def menuPrincipal():
                 menuProduto()
             elif escolha == 3:
                 pdv()
-            elif escolha == 4:
-                exit()
             
 
 
@@ -164,8 +167,7 @@ def cadastroCliente():
 ''')
        
 
-        '''****FAZ O CADASTRO DOS DADOS DOS CLIENTES  NO DICIONÁRIO clientes E MANDA ESSES DADOS
-        PARA A LISTA dadosClientes****'''
+        #****FAZ O CADASTRO DOS DADOS DOS CLIENTES  NO DICIONÁRIO clientes E MANDA ESSES DADOS PARA A LISTA dadosClientes****
 
         clientes['nom'] = str(input('Nome: ')).upper().strip()
         while clientes['nom'] == '':
@@ -179,8 +181,7 @@ def cadastroCliente():
             print('\033[31mPor favor, insira um número de telefone válido.\033[m')
             clientes['tel'] = str(input('Telefone (apenas números): ')).upper().strip()
 
-        '''*** VERIFICA SE O NÚMERO DE TELEFONE TEM MENOS/MAIS DE NOVE NÚMEROS, QUE É O PADRÃO DE NÚMEROS
-         DE CELULAR NO RIO DE JANEIRO ***'''
+        #*** VERIFICA SE O NÚMERO DE TELEFONE TEM MENOS/MAIS DE NOVE NÚMEROS, QUE É O PADRÃO DE NÚMEROS DE CELULAR NO RIO DE JANEIRO ***
 
         while len(clientes['tel']) < 9 or len(clientes['tel']) > 9:
             if len(clientes['tel']) < 9:
@@ -203,8 +204,7 @@ def cadastroCliente():
             else:
                 break    
 
-        '''****VERIFICA SE O TELEFONE CADASTRADO JÁ EXISTE NO BANCO DE DADOS E PEDE 
-        UM NÚMERO AINDA NÃO CADASTRADO OU MANDA PARA A ALTERAÇÃO DE CADASTROS****'''
+        #****VERIFICA SE O TELEFONE CADASTRADO JÁ EXISTE NO BANCO DE DADOS E PEDE UM NÚMERO AINDA NÃO CADASTRADO OU MANDA PARA A ALTERAÇÃO DE CADASTROS****'''
 
         for item in dadosClientes:
             while item['tel'] == clientes['tel']:
@@ -229,7 +229,7 @@ def cadastroCliente():
         else:
             retorno('cadcli', clientes['ref'])
 
-        '''*** ADICIONA AS NOVAS INFORMAÇÕES AO BANCO DE DADOS ***'''
+        #*** ADICIONA AS NOVAS INFORMAÇÕES AO BANCO DE DADOS ***
         dadosClientes.append(clientes.copy())
         print()
         print('Cadastrando cliente...')
@@ -263,7 +263,7 @@ def alteraCliente():
 *** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
         ''')
 
-        '''***FAZ A BUSCA DO CADASTRO DO CLIENTE ATRAVÉS DO NÚMERO DE TELEFONE***'''
+        #***FAZ A BUSCA DO CADASTRO DO CLIENTE ATRAVÉS DO NÚMERO DE TELEFONE***
         busca = str(input('Digite o número de telefone do cliente: ')).strip().upper()
         while busca.isnumeric() == False or busca == '':
             if busca in ('VOLTAR', 'VOLTA', 'RESET'):
@@ -283,7 +283,7 @@ def alteraCliente():
                 print('=' * 50)
                 sleep(1)
                 
-                '''***FAZ ALTERAÇÕES NO CADASTRO DO CLIENTE***'''
+                #***FAZ ALTERAÇÕES NO CADASTRO DO CLIENTE***
                 while True:
                     alterar = str(input('\nDeseja alterar qual campo? [NOME/TELEFONE/ENDEREÇO/REFERENCIA]: ')).strip().lower()[:3]
                     while alterar not in ('nom', 'tel', 'end', 'ref', 'vol', 'res') or alterar == '':
@@ -340,6 +340,7 @@ def alteraCliente():
                             alteraCliente()  
                         else:
                             break      
+    # *** OFERECE FAZER UMA NOVA BUSCA CASO O NÚMERO NÃO INSERIDO NÃO EXISTA NO CADASTRO ***
             else:
                 cont += 1
                 if cont >= len(dadosClientes):
@@ -357,6 +358,7 @@ def alteraCliente():
 
             
 def menuProduto():
+    """Mostra o menu da parte de produtos, com as opções de cadastrar, alterar o cadastro ou ver uma lista dos produtos já cadastrados."""
     system('cls')
     print('''
 
@@ -380,6 +382,7 @@ def menuProduto():
 
 
 def cadastroProduto():
+    """Cadastra produtos novos no banco de dados"""
     while True:
         system('cls')
         print('''    
@@ -406,6 +409,7 @@ def cadastroProduto():
             else:
                 print('\033[31mOpção inválida!\033[m')
                 produto['pre'] = str(input('Por favor, digite o preço: R$ ')).strip()
+        #***MOSTRA NA TELA O PRODUTO QUE FOI CADASTRADO***
         verificaProduto = (f'| {produto["nom"]}    R$ {produto["pre"]} |')
         print('\nO produto cadastrado foi:\n')
         print('-' * len(verificaProduto))
@@ -435,6 +439,7 @@ def cadastroProduto():
     
 
 def alteraProduto():
+    """Faz alterações nos preços e nomes dos produtos já cadastrados"""
 
     
     while True:
@@ -520,6 +525,9 @@ def alteraProduto():
 
 
 def mostrarProduto():
+    """Mostra uma tabela com os nomes, preços e códigos dos produtos já cadastrados"""
+    
+    
     system('cls')
     print('=' * 50)
     print(f'{"COD":<4} {"PRODUTO":<35} {"PREÇO":<20}')
@@ -534,82 +542,53 @@ def mostrarProduto():
 
 
 def pdv():
-    pedidos = []
-    quantidadeLista = []
-    taxaEntrega = contador = total = 0
-    cabecalho = f'{"QUANT":<6} {" ITEM"} {"PREÇO":>61}'
-    verificaTel = False
+    """Faz as operações de vendas e impressão dos pedidos"""
+
+    #*** IMPRIME O PREDIDO NA TELA, COM QUANTIDADE, NOME DOS PRODUTOS E VALOR, TOTAL E INDIVIDUAL ***
+    def imprimir():
+        """Imprime o pedido"""
+
+
+        imprimir = str(input('Deseja imprimir? [S/N] ')).strip().upper()
+        while imprimir not in ('S', 'SIM', 'N', 'NAO', 'NÃO') or imprimir == '':
+            if imprimir in ('RESET', 'VOLTAR', 'VOLTA'):
+                retorno('pdv', imprimir)
+            print('\033[31mOpção inválida!\033[m')
+            imprimir = str(input('Deseja imprimir? [S/N] ')).strip().upper()
+        if imprimir in ('S', 'SIM'):
+            startfile(r'C:\Users\ramon\Desktop\RAMON\DEV\Python\TOPLANCHES\NOTA_PEDIDO.txt', 'print')
     
-    system('cls')
-    print('''     
-▒█▀▀█ █▀▀ █▀▀▄ ░▀░ █▀▀▄ █▀▀█ █▀▀ 
-▒█▄▄█ █▀▀ █░░█ ▀█▀ █░░█ █░░█ ▀▀█ 
-▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀
-             
-*** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
-*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O PEDIDO ***
-*** DIGITE \033[31mFECHAR\033[m PARA FECHAR O PEDIDO ***
-''')   
-    while True:
-        print()
-        try:
-            codigo = str(input('Código: ')).upper().strip()
-            if codigo in ('RESET', 'VOLTAR', 'VOLTA'):
-                retorno('pdv', codigo)
-            else:
-                codigo = int(codigo)
-        except:
-            print('\033[31mCódigo inválido. Digite um código válido.\033[m')
-            continue
-        while codigo > len(tabelaProduto) or codigo <= 0:
-            if codigo == 999:
-                break
-            print('Código não cadastrado.')
-            codigo = int(input('Código [999 para encerrar]: '))
-        while codigo == 999:
-            escolha = str(input('Deseja fechar esse pedido? [S/N] ')).strip()[0]
-            while escolha not in 'SsNn':
-                print('Opção inválida!')
-                escolha = str(input('Deseja fechar esse pedido? [S/N] ')).strip()[0]
-            if escolha in 'Nn':
-                codigo = int(input('Código [999 para encerrar]: '))
-            else:
-                entrega = str(input('Entrega? [S/N] '))
-                while entrega not in 'SsNn':
-                    print('Opção inválida!')
-                    entrega = str(input('Entrega? [S/N] '))
-                if entrega in 'Ss':
-                    taxaEntrega = str(input('Taxa de entrega: R$ ')).strip()
-                    while taxaEntrega == '' or taxaEntrega.isnumeric() == False:
-                        print('Opção inválida!')
-                        taxaEntrega = str(input('Taxa de entrega: R$ ')).strip()
-                    buscaCliente = str(input('Digite o número de telefone do cliente: ')).strip()
-                    while not verificaTel:
-                        for numero in dadosClientes:
-                            if numero['tel'] != buscaCliente:
-                                contador += 1
-                            if contador > len(dadosClientes):
-                                print('Número inexistente!')
-                                buscaCliente = str(input('Digite o número de telefone do cliente: ')).strip()
-                                contador = 0
-                            if numero['tel'] == buscaCliente:
-                                verificaTel = True
-                else:
-                    break
-                break
-        if codigo == 999:
-            break
-        quantidade = str(input('Quantidade: '))
-        if quantidade == '':
-            quantidade = '1'
-        while quantidade.isnumeric() == False:
-            print('Insira uma quantidade válida!')
-            quantidade = str(input('Quantidade: '))
-            if quantidade == '':
-                quantidade = '1'
-        quantidadeLista.append(quantidade)
-        pedidos.append(codigo)
-        total += float(tabelaProduto[codigo - 1]['pre']) * int(quantidade)
+    def notaFiscal(entrega = False):
+        """Cria o arquivo usado para a impressão do pedido
+        :Param entrega: Verifica se o pedido é para entrega, adicionando o valor da taxa de entrega"""
+
+
+        bancoDados = open('NOTA_PEDIDO.txt', 'w', newline = '', encoding = 'utf8')
+        criarBanco = csv.writer(bancoDados)
+        criarBanco.writerow([f'{"QUANT":<6} {" ITEM"} {"PREÇO":>61}'])
+        for pos, itens in enumerate(pedidos):
+            criarBanco.writerow([f' {quantidadeLista[pos]:^6} {tabelaProduto[itens - 1]["nom"]:.<60} {(float(tabelaProduto[itens - 1]["pre"]) * int(quantidadeLista[pos])):.2f}'])
+        criarBanco.writerow([])
+        if entrega == False:
+            criarBanco.writerow([f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}'])
+            criarBanco.writerow([])
+        else:
+            criarBanco.writerow([f'{"        ENTREGA":.<65} R$ {float(taxaEntrega):.2f} '])
+            criarBanco.writerow([f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}'])
+            criarBanco.writerow([])
+            criarBanco.writerow(['DADOS DO CLIENTE: '])
+            criarBanco.writerow([])
+            for numero in dadosClientes:
+                for k, v in numero.items():
+                    if numero['tel'] == buscaCliente:
+                        criarBanco.writerow([f'{k}: {v}'])
+        bancoDados.close()
+    
+    def mostraPedido(entrega = False):
+        """Mostra o pedido na tela
+        :Param entrega: Verifica se o pedido é para entrega, adicionando o valor da taxa de entrega"""
+
+
         system('cls')
         print('''
             
@@ -629,98 +608,122 @@ def pdv():
         for pos, itens in enumerate(pedidos):
                 print(f'{quantidadeLista[pos]:^6}  {tabelaProduto[itens - 1]["nom"]:.<60} {(float(tabelaProduto[itens - 1]["pre"]) * int(quantidadeLista[pos])):.2f}')
         print()
-        print(f'{"        TOTAL":.<65} R$ {total:.2f}')
-    if len(pedidos) == 0:
-        menuPrincipal()
+        if entrega == False:
+            print(f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}')
+        if entrega == True:
+            print()
+            print(f'{"        ENTREGA":.<65} R$ {float(taxaEntrega):.2f} ')
+            print()
+            print(f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}')
+            print()
+            print('DADOS DO CLIENTE:')
+            print()
+            for numero in dadosClientes:
+                for k, v in numero.items():
+                    if numero['tel'] == buscaCliente:
+                        print(f'{k}: {v}')
+        print()
+        
+
+    pedidos = []
+    quantidadeLista = []
+    taxaEntrega = contador = total = 0
+    cabecalho = f'{"QUANT":<6} {" ITEM"} {"PREÇO":>61}'
+    verificaTel = False
+    
     system('cls')
-    print('''
-            
+    print('''     
 ▒█▀▀█ █▀▀ █▀▀▄ ░▀░ █▀▀▄ █▀▀█ █▀▀ 
 ▒█▄▄█ █▀▀ █░░█ ▀█▀ █░░█ █░░█ ▀▀█ 
 ▒█░░░ ▀▀▀ ▀▀▀░ ▀▀▀ ▀▀▀░ ▀▀▀▀ ▀▀▀
              
 *** DIGITE \033[31mVOLTAR\033[m PARA RETORNAR AO MENU ANTERIOR ***
-*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O CADASTRO ***
+*** DIGITE \033[31mRESET\033[m PARA RECOMEÇAR O PEDIDO ***
 ''')   
-    print()
-    print()
-    print('=' * 75)
-    print(cabecalho)
-    print('=' * 75)
-    print()
-    for pos, itens in enumerate(pedidos):
-        print(f'{quantidadeLista[pos]:^6}  {tabelaProduto[itens - 1]["nom"]:.<60} {(float(tabelaProduto[itens - 1]["pre"]) * int(quantidadeLista[pos])):.2f}')
-    if float(taxaEntrega) > 0:
-        print()
-        print(f'{"        ENTREGA":.<65} R$ {float(taxaEntrega):.2f} ')
-        print()
-        print(f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}')
-        print()
-        print('DADOS DO CLIENTE:')
-        print()
-        for numero in dadosClientes:
-            for k, v in numero.items():
-                if numero['tel'] == buscaCliente:
-                    print(f'{k}: {v}')
-        bancoDados = open('NOTA_PEDIDO.txt', 'w', newline = '', encoding = 'utf8')
-        criarBanco = csv.writer(bancoDados)
-        criarBanco.writerow([cabecalho])
-        for pos, itens in enumerate(pedidos):
-            criarBanco.writerow([f' {quantidadeLista[pos]:^6} {tabelaProduto[itens - 1]["nom"]:.<60} {(float(tabelaProduto[itens - 1]["pre"]) * int(quantidadeLista[pos])):.2f}'])
-        criarBanco.writerow([])
-        criarBanco.writerow([f'{"        ENTREGA":.<65} R$ {float(taxaEntrega):.2f} '])
-        criarBanco.writerow([f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}'])
-        criarBanco.writerow([])
-        criarBanco.writerow(['DADOS DO CLIENTE: '])
-        criarBanco.writerow([])
-        for numero in dadosClientes:
-            for k, v in numero.items():
-                if numero['tel'] == buscaCliente:
-                    criarBanco.writerow([f'{k}: {v}'])
-        bancoDados.close()
-        imprimir = str(input('Deseja imprimir? [S/N] ')).strip().upper()
-        while imprimir not in ('S', 'SIM', 'N', 'NAO', 'NÃO') or imprimir == '':
-            print('Opção inválida!')
-            imprimir = str(input('Deseja imprimir? [S/N] ')).strip()
-        if imprimir in ('S', 'SIM'):
-            startfile(r'C:\Users\ramon\Desktop\DEV\Python\TOPLANCHES\NOTA_PEDIDO.txt', 'print')
-        escolha = str(input('Deseja fazer um novo pedido? [S/N] ')).strip().upper()
-        while escolha not in ('S', 'SIM', 'N', 'NAO', 'NÃO'):
-            print('Opção inválida.')
-            escolha = str(input('Deseja fazer um novo pedido? [S/N] ')).strip().upper()
-        if escolha in ('S', 'SIM'):
-            PDV()
-        menuPrincipal()
-    else:
-        print()
-        print(f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}')
-        bancoDados = open('NOTA_PEDIDO.txt', 'w', newline = '', encoding = 'utf8')
-        criarBanco = csv.writer(bancoDados)
-        criarBanco.writerow([cabecalho])
-        for pos, itens in enumerate(pedidos):
-            criarBanco.writerow([f' {quantidadeLista[pos]:^6} {tabelaProduto[itens - 1]["nom"]:.<60} {(float(tabelaProduto[itens - 1]["pre"]) * int(quantidadeLista[pos])):.2f}'])
-        criarBanco.writerow([])
-        criarBanco.writerow([f'{"        TOTAL":.<65} R$ {(total + float(taxaEntrega)):.2f}'])
-        bancoDados.close()
-        print()
-        imprimir = str(input('Deseja imprimir? [S/N] ')).strip().upper()
-        while imprimir not in ('S', 'SIM', 'N', 'NAO', 'NÃO') or imprimir == '':
-            print('Opção inválida!')
-            imprimir = str(input('Deseja imprimir? [S/N] ')).strip().upper()
-        if imprimir in ('S', 'SIM'):
-            startfile(r'C:\Users\ramon\Desktop\DEV\Python\TOPLANCHES\NOTA_PEDIDO.txt', 'print')
-        escolha = str(input('Deseja fazer um novo pedido? [S/N] ')).strip().upper()
-        while escolha not in ('S', 'SIM', 'N', 'NAO', 'NÃO'):
-            print('Opção inválida.')
-            escolha = str(input('Deseja fazer um novo pedido? [S/N] ')).strip().upper()
-        if escolha in ('S', 'SIM'):
-            PDV()
-        menuPrincipal()
+    while True:
+        try:
+            codigo = str(input('Código [999 PARA FECHAR O PEDIDO]: ')).upper().strip()
+            if codigo in ('RESET', 'VOLTAR', 'VOLTA'):
+                retorno('pdv', codigo)
+            
+            #*** ERRO CASO CÓDIGO SEJA MAIOR QUE A QUANTIDADE DE PRODUTOS ***
+            while int(codigo) > len(tabelaProduto) or int(codigo) <= 0:
+                if int(codigo) == 999 and len(pedidos) > 0:
+                    break
+                elif int(codigo) == 999 and len(pedidos) == 0:
+                    print('\033[31mVocê deve adicionar itens antes de fechar o pedido.\033[m')
+                else:
+                    print('\033[31mCódigo não cadastrado.\033[m')
+                codigo = str(input('Código [999 PARA FECHAR O PEDIDO]: ')).strip().upper()
+                if codigo in ('RESET', 'VOLTAR', 'VOLTA'):
+                    retorno('pdv', codigo)
+            
+            #*** FECHAMENTO DO PEDIDO ***
 
-        
-        
-
-
+            if int(codigo) == 999:
+                escolha = str(input('Deseja fechar esse pedido? [S/N] ')).strip().upper()
+                while escolha not in ('SIM', 'NÃO', 'NAO'):
+                    if escolha in ('RESET', 'VOLTAR', 'VOLTA'):
+                        retorno('pdv', escolha)
+                    print('\033[31mOpção inválida!\033[m')
+                    escolha = str(input('Deseja fechar esse pedido? [S/N] ')).strip().upper()
+                if escolha in ('NAO', 'NÃO'):
+                    continue
+                else:
+                    entrega = str(input('Entrega? [S/N] ')).strip().upper()
+                    while entrega not in ('SIM', 'NAO', 'NÃO'):
+                        if entrega in ('RESET', 'VOLTAR', 'VOLTA'):
+                            retorno('pdv', entrega)
+                        print('\033[31mOpção inválida!\033[m')
+                        entrega = str(input('Entrega? [S/N] ')).strip().upper()
+                    if entrega in 'SIM':
+                        taxaEntrega = str(input('Taxa de entrega: R$ ')).strip().upper()
+                        while taxaEntrega == '' or taxaEntrega.isnumeric() == False:
+                            if taxaEntrega in ('RESET', 'VOLTAR', 'VOLTA'):
+                                retorno('pdv', taxaEntrega)
+                            print('\033[31mOpção inválida!\033[m')
+                            taxaEntrega = str(input('Taxa de entrega: R$ ')).strip().upper()
+                        buscaCliente = str(input('Digite o número de telefone do cliente: ')).strip().upper()
+                        while not verificaTel:
+                            if buscaCliente in ('RESET', 'VOLTAR', 'VOLTA'):
+                                retorno('pdv', buscaCliente)                            
+                            for numero in dadosClientes:
+                                if numero['tel'] != buscaCliente:
+                                    contador += 1
+                                if contador > len(dadosClientes):
+                                    print('\033[31mNúmero inexistente!\033[m')
+                                    buscaCliente = str(input('Digite o número de telefone do cliente: ')).strip().upper()
+                                    contador = 0
+                                if numero['tel'] == buscaCliente:
+                                    verificaTel = True
+                        mostraPedido(entrega = True)
+                        notaFiscal(entrega = True)
+                        imprimir()
+                    else:
+                        notaFiscal()
+                        imprimir()
+                        break
+                    break
+            while True:
+                try:
+                    quantidade = str(input('Quantidade: ')).strip().upper()
+                    if quantidade in ('RESET', 'VOLTAR', 'VOLTA'):
+                        retorno('pdv', quantidade)
+                    else:
+                        quantidade = int(quantidade)
+                except (TypeError, ValueError):
+                    print('\033[31mInsira uma quantidade válida.\033[m')
+                    continue
+                else:
+                    break
+            quantidadeLista.append(quantidade)
+            pedidos.append(int(codigo))
+            total += float(tabelaProduto[int(codigo) - 1]['pre']) * quantidade
+            mostraPedido()
+        except:
+            print('\033[31mComando não reconhecido. Insira um comando válido!\033[m')
+            continue
+    pdv()
 
 
 #Programa Principal
@@ -739,18 +742,5 @@ with open('CADASTRO_PRODUTOS.csv', encoding = 'utf-8') as lerDadosProdutos:
         produto['nom'] = linha[0]
         produto['pre'] = linha[1]
         tabelaProduto.append(produto.copy())
-
-#print(dadosClientes)
-#print(tabelaProduto)
-
-#if 'pre' in tabelaProduto[0]:
-    #print('bolado')
-
-#d = {"key1": 10, "key2": 23}
-
-#if "" in d:
-    #print("this will execute")
-
-#if "nonexistent key" in d:
-    #print("this will not")
 menuPrincipal()
+
